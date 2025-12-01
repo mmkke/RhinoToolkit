@@ -76,6 +76,14 @@ If ON and nothing is selected, the Toolkit warns the user.
 
 ## NameStats
 
+Analyzes the working set (all model objects or selected objects) and reports:
+* Total number of objects
+* Number of distinct names
+* Duplicate name groups
+* Total instances of duplicates
+
+Useful for diagnosing naming issues before performing renames.
+
 ```
 view_object_names.get_object_name_stats(
     include_hidden=True,
@@ -83,17 +91,29 @@ view_object_names.get_object_name_stats(
 )
 ```
 
-Outputs:
+Example Output:
+```
+----- Object Name Statistics -----
+('Total objects:', 4)
+('Distinct names:', 3)
+('Duplicate name groups:', 1)
+('Total duplicate instances:', 2)
 
-- Total objects  
-- Distinct names  
-- Duplicate name groups  
-- Duplicate instance count  
-- Per-name duplicate frequencies  
+Duplicate name frequencies:
+('  Name:', 'Box 143 033 002 005', ' Count:', 2)
+
+Done.
+Name Stats Complete.
+```
 
 ---
 
 ## ListNames
+Prints a detailed listing of each object’s:
+* Name
+* Description (usually geometry type, e.g., “mesh”)
+
+Duplicates are marked with '** DUPLICATE **' to help spot conflicts quickly.
 
 ```
 view_object_names.list_object_info(
@@ -103,17 +123,36 @@ view_object_names.list_object_info(
 )
 ```
 
-Outputs:
+Example Outputs:
 
-- Object name  
-- Description (if present)  
-- Marks duplicates as **DUPLICATE**
+```
+----- Object List -----
+('Listing', 4, 'named objects')
+
+('Object Name:', 'Box 143 033 002 005')
+('Object Description:', 'mesh')
+
+** DUPLICATE **
+('Object Name:', 'Box 143 033 002 005')
+('Object Description:', 'mesh')
+
+('Object Name:', 'Box 143 033 002 002')
+('Object Description:', 'mesh')
+
+('Object Name:', 'Bill 006')
+('Object Description:', 'mesh')
+
+Done.
+List Names Complete.
+```
+
 
 ---
 
 ## RenameDry
 
-Simulates renaming actions **without** modifying the document:
+Performs a simulation of the renaming algorithm without modifying the Rhino document.
+Shows exactly what would be renamed, allowing safe preview before applying changes.
 
 ```
 rename_objects.rename_objects_unique(
@@ -122,14 +161,36 @@ rename_objects.rename_objects_unique(
     selected_only=selected_only
 )
 ```
+Example output:
+```
+----- Object Name Statistics -----
+('Total named objects:', 4)
+('Distinct names:', 3)
+('Duplicate name groups:', 1)
+('Total duplicate instances:', 2)
 
+Duplicate name frequencies:
+('  Name:', 'Box 143 033 002 005', ' Count:', 2)
+
+----- Renaming Duplicates -----
+[DRY] ac08ba7a-1254-4435-9ae8-dd138e345598: 'Box 143 033 002 005' -> 'Box 143 033 002 005 001'
+[DRY] f165e7ab-9531-4f3e-8cee-0640964ca73d: 'Box 143 033 002 005' -> 'Box 143 033 002 005 001'
+
+Done. Renamed 0 object(s).
+Dry run complete.
+```
 Shows exactly what *would* be renamed.
 
 ---
 
 ## RenameApply
 
-Performs real renaming to enforce unique naming:
+Runs the full rename operation:
+* Ensures all objects have unique names
+* Keeps one base name
+* Assigns numeric suffixes to duplicates (e.g., Name 001, Name 002)
+
+Changes are applied to the document, and each rename operation is printed.
 
 ```
 rename_objects.rename_objects_unique(
@@ -142,7 +203,21 @@ rename_objects.rename_objects_unique(
 Example output:
 
 ```
-Renamed: 'Box' -> 'Box 001'
+----- Object Name Statistics -----
+('Total named objects:', 4)
+('Distinct names:', 3)
+('Duplicate name groups:', 1)
+('Total duplicate instances:', 2)
+
+Duplicate name frequencies:
+('  Name:', 'Box 143 033 002 005', ' Count:', 2)
+
+----- Renaming Duplicates -----
+Renamed: 'Box 143 033 002 005' -> 'Box 143 033 002 005 001'
+Renamed: 'Box 143 033 002 005' -> 'Box 143 033 002 005 002'
+
+Done. Renamed 2 object(s).
+Rename operation complete.
 ```
 
 ---
